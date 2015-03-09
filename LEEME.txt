@@ -1,0 +1,9 @@
+Ejemplo sencillo de manejo de estados con OGRE
+----------------------------------------------
+
+IntroState 'Espacio' --> PlayState
+
+PlayState 'p' --> PauseState
+PlayState 'Esc' --> salida
+
+PauseState 'p' --> PlayState (no es posible salir de PauseState con 'Esc')

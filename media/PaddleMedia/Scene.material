@@ -1,0 +1,223 @@
+material Material
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture Untitled.jpg
+			}
+		}
+	}
+}
+
+material cube_1
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_1.jpg
+			}
+		}
+	}
+}
+
+material cube_2
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_2.jpg
+			}
+		}
+	}
+}
+
+material cube_3
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_3.jpg
+			}
+		}
+	}
+}
+
+material cube_4
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_4.jpg
+			}
+		}
+	}
+}
+
+material cube_5
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_5.jpg
+			}
+		}
+	}
+}
+
+material cube_6
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_6.jpg
+			}
+		}
+	}
+}
+
+material cube_7
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_7.jpg
+			}
+		}
+	}
+}
+
+material cube_8
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_8.jpg
+			}
+		}
+	}
+}
+
+material cube_0
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_0.jpg
+			}
+		}
+	}
+}
+
+material mine
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture mine.jpg
+			}
+		}
+	}
+}
+
+material flag
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture flag.jpg
+			}
+		}
+	}
+}
+
+material noflag
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture noflag.jpg
+			}
+		}
+	}
+}
+
+material cube_selected
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.988774 1.000000 0.820391
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture cube_selected.jpg
+			}
+		}
+	}
+}
