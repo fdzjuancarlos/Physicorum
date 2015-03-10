@@ -1,3 +1,4 @@
+
 /*********************************************************************
  * Módulo 1. Curso de Experto en Desarrollo de Videojuegos
  * Autor: David Vallejo Fernández    David.Vallejo@uclm.es
@@ -18,52 +19,29 @@
  * General Public License for more details.  
  *********************************************************************/
 
-#ifndef PlayState_H
-#define PlayState_H
+#ifndef InputHandler_H
+#define InputHandler_H
+
+#define THIRD_PERSON 1
+#define FIRST_PERSON 2
 
 #include <Ogre.h>
 #include <OIS/OIS.h>
-#include <InputHandler.h>
+ 
+#include "GameManager.h"
+#include "InputManager.h"
 
-#include "GameState.h"
+class InputHandler{
 
-#define PLAYER 1 << 0  // Mascara para el escenario
-#define CUBE1 1 << 1  // Mascara para objetos de tipo 1
-#define CUBE2 1 << 2  // Mascara para objetos de tipo 2
+  int _inputMode;
 
-class PlayState : public Ogre::Singleton<PlayState>, public GameState
-{
  public:
-  PlayState () {}
+  
+  InputHandler() : _inputMode(FIRST_PERSON){};
+  
+  void keyPressed (const OIS::KeyEvent &e, Ogre::Camera* camera);
+  void keyReleased (const OIS::KeyEvent &e, Ogre::Camera* camera);
 
-  void enter ();
-  void exit ();
-  void pause ();
-  void resume ();
-
-  void keyPressed (const OIS::KeyEvent &e);
-  void keyReleased (const OIS::KeyEvent &e);
-
-  void mouseMoved (const OIS::MouseEvent &e);
-  void mousePressed (const OIS::MouseEvent &e, OIS::MouseButtonID id);
-  void mouseReleased (const OIS::MouseEvent &e, OIS::MouseButtonID id);
-
-  bool frameStarted (const Ogre::FrameEvent& evt);
-  bool frameEnded (const Ogre::FrameEvent& evt);
-
-  // Heredados de Ogre::Singleton.
-  static PlayState& getSingleton ();
-  static PlayState* getSingletonPtr ();
-
- protected:
-  Ogre::Root* _root;
-  Ogre::SceneManager* _sceneMgr;
-  Ogre::Viewport* _viewport;
-  Ogre::Camera* _camera;
-
-  InputHandler _inputHandler;
-
-  bool _exitGame;
 };
 
 #endif

@@ -1,0 +1,17 @@
+material Ground
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			 ambient  0.8 0.8 0.8
+			 diffuse  1 1 1 1
+		
+			texture_unit
+			{
+				texture marble.jpg
+			}
+		}
+	}
+}
