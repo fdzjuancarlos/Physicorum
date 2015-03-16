@@ -1,4 +1,4 @@
-#include "PlayState.h"
+#include <Ogre.h>
 
 #ifndef extended_H
 #define extended_H
@@ -20,7 +20,7 @@ using namespace Ogre;
          Real mTightness; // Determines the movement of the camera - 1 means tight movement, while 0 means no movement
  // Methods ---------------------------------------------------------------------------------
      public:
-         ExtendedCamera (String name, SceneManager *sceneMgr, Camera *camera = 0);
+         ExtendedCamera (String name, SceneManager *sceneMgr, Camera *camera);
          ~ExtendedCamera ();
  
          void setTightness (Real tightness);

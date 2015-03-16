@@ -1,7 +1,7 @@
 #include "ExtendedCamera.h"
 using namespace Ogre;
 
-ExtendedCamera::ExtendedCamera (String name, SceneManager *sceneMgr, Camera *camera = 0) {
+ExtendedCamera::ExtendedCamera (String name, SceneManager *sceneMgr, Camera *camera) {
   // Basic member references setup
   mName = name;
   mSceneMgr = sceneMgr;
