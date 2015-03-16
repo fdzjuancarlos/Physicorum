@@ -30,15 +30,13 @@
 
 import os
 import ycm_core
+import subprocess
 
 # These are the compilation flags that will be used in case there's no
 # compilation database set (by default, one is not set).
 # CHANGE THIS LIST OF FLAGS. YES, THIS IS THE DROID YOU HAVE BEEN LOOKING FOR.
 flags = [
 '-I/home/parallels/Desktop/CEDV/Proyectos/Physicorum/include/',
-'`pkg-config --cflags OGRE`',
-'`pkg-config --libs-only-L OGRE`',
-'`pkg-config --libs-only-l OGRE`',
 '-lOIS',
 '-lstdc++',
 '-lboost_system',
@@ -97,6 +95,14 @@ flags = [
 '-isystem',
 '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include',
 ]
+
+#'`pkg-config --cflags OGRE`',
+#'`pkg-config --libs-only-L OGRE`',
+#'`pkg-config --libs-only-l OGRE`',
+
+flags += [s.strip() for s in subprocess.check_output(['pkg-config', '--cflags', 'OGRE']).strip().split(' ')]
+flags += [s.strip() for s in subprocess.check_output(['pkg-config', '--libs-only-L', 'OGRE']).strip().split(' ')]
+flags += [s.strip() for s in subprocess.check_output(['pkg-config', '--libs-only-l', 'OGRE']).strip().split(' ')]
 
 
 # Set this to the absolute path to the folder (NOT the file!) containing the

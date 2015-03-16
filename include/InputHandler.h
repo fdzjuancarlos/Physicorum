@@ -30,18 +30,29 @@
  
 #include "GameManager.h"
 #include "InputManager.h"
+#include "ExtendedCamera.h"
 
 class InputHandler{
 
   int _inputMode;
+  Ogre::Camera* _camera;
+  std::unique_ptr<ExtendedCamera> _extendedCamera;
 
  public:
   
-  InputHandler() : _inputMode(FIRST_PERSON){};
+  
+  InputHandler(Ogre::Camera* camera){
+    _camera = camera;
+    auto sceneMgr = Root::getSingletonPtr()->getSceneManager("SceneManager");
+    _extendedCamera = std::unique_ptr<ExtendedCamera>(new ExtendedCamera("Nombre",
+    sceneMgr,camera)); 
+    _inputMode = THIRD_PERSON;
+  };
   
   void keyPressed (const OIS::KeyEvent &e, Ogre::Camera* camera);
   void keyReleased (const OIS::KeyEvent &e, Ogre::Camera* camera);
 
+  void mouseMoved(const OIS::MouseEvent &e);
 };
 
 #endif

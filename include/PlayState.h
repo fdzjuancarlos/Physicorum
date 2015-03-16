@@ -51,6 +51,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   bool frameStarted (const Ogre::FrameEvent& evt);
   bool frameEnded (const Ogre::FrameEvent& evt);
 
+  double getTimeSinceLastTime();
   // Heredados de Ogre::Singleton.
   static PlayState& getSingleton ();
   static PlayState* getSingletonPtr ();
@@ -61,7 +62,8 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   Ogre::Viewport* _viewport;
   Ogre::Camera* _camera;
 
-  InputHandler _inputHandler;
+  std::shared_ptr<InputHandler> _inputHandler;
+  double _lastTime;
 
   bool _exitGame;
 };

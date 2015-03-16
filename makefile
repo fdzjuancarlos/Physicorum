@@ -11,7 +11,7 @@ DIRHEA := include/
 CXX := g++
 
 # Flags de compilación -----------------------------------------------
-CXXFLAGS := `pkg-config --cflags OGRE` -I$(DIRHEA) -Wall 
+CXXFLAGS := `pkg-config --cflags OGRE` -I$(DIRHEA) -Wall -std=c++11
 
 # Flags del linker ---------------------------------------------------
 LDFLAGS := `pkg-config --libs-only-L OGRE`

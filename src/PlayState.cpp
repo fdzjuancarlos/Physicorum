@@ -20,7 +20,7 @@ PlayState::enter ()
 	_camera->setNearClipDistance(0.1);
 	_camera->setFarClipDistance(100);
 
-  _inputHandler = InputHandler();
+  _inputHandler = std::make_shared<InputHandler>(_camera);
 	// Nuevo background colour.
 	_viewport->setBackgroundColour(Ogre::ColourValue(0.0, 0.0, 0.0));
   
@@ -97,6 +97,7 @@ bool
 PlayState::frameStarted
 (const Ogre::FrameEvent& evt)
 {
+  _lastTime= evt.timeSinceLastFrame;
   return true;
 }
 
@@ -118,7 +119,7 @@ PlayState::keyPressed
   if (e.key == OIS::KC_P) {
     pushState(PauseState::getSingletonPtr());
   }
-  _inputHandler.keyPressed(e,_camera);
+  _inputHandler->keyPressed(e,_camera);
 }
 
 void
@@ -134,10 +135,7 @@ void
 PlayState::mouseMoved
 (const OIS::MouseEvent &e)
 {
-  float rotx = e.state.X.rel * 0.01* -1;
-  float roty = e.state.Y.rel * 0.01* -1;
-  _camera->yaw(Ogre::Radian(rotx));
-  _camera->pitch(Ogre::Radian(roty));
+  _inputHandler->mouseMoved(e);
 }
 
 void
@@ -163,4 +161,8 @@ PlayState::getSingleton ()
 { 
   assert(msSingleton);
   return *msSingleton;
+}
+
+double PlayState::getTimeSinceLastTime(){
+  return _lastTime;
 }
