@@ -37,22 +37,36 @@ class InputHandler{
   int _inputMode;
   Ogre::Camera* _camera;
   std::unique_ptr<ExtendedCamera> _extendedCamera;
+  std::shared_ptr<SceneNode> _player;
+
+  //Player Movement
+  bool _forward;
+  bool _back;
+  bool _right;
+  bool _left;
 
  public:
   
   
-  InputHandler(Ogre::Camera* camera){
+  InputHandler(Ogre::Camera* camera,std::shared_ptr<SceneNode> player){
     _camera = camera;
+    _player = player;
     auto sceneMgr = Root::getSingletonPtr()->getSceneManager("SceneManager");
     _extendedCamera = std::unique_ptr<ExtendedCamera>(new ExtendedCamera("Nombre",
     sceneMgr,camera)); 
     _inputMode = THIRD_PERSON;
+    _forward=false;
+    _back=false; 
+    _right=false;
+    _left=false;
   };
   
-  void keyPressed (const OIS::KeyEvent &e, Ogre::Camera* camera);
-  void keyReleased (const OIS::KeyEvent &e, Ogre::Camera* camera);
+  void keyPressed (const OIS::KeyEvent &e);
+  void keyReleased (const OIS::KeyEvent &e);
 
   void mouseMoved(const OIS::MouseEvent &e);
+
+  void update(const Ogre::FrameEvent& evt, Vector3 target);
 };
 
 #endif

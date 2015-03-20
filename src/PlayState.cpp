@@ -16,23 +16,24 @@ PlayState::enter ()
 	_viewport = _root->getAutoCreatedWindow()->addViewport(_camera);
 	
 	//Camera configuration
-	_camera->lookAt(Vector3(0, -15, -30));
+//	_camera->lookAt(Vector3(0, -15, -30));
 	_camera->setNearClipDistance(0.1);
 	_camera->setFarClipDistance(100);
 
-  _inputHandler = std::make_shared<InputHandler>(_camera);
 	// Nuevo background colour.
 	_viewport->setBackgroundColour(Ogre::ColourValue(0.0, 0.0, 0.0));
   
 	//Paddle Initialization
 	Ogre::Entity* ent1 = _sceneMgr->createEntity("cube.mesh");
 	ent1->setQueryFlags(PLAYER);
-	Ogre::SceneNode* node1 = _sceneMgr->createSceneNode("playerPaddle");
-	node1->attachObject(ent1);
-	_sceneMgr->getRootSceneNode()->addChild(node1);
-	node1->setScale(4,1,1.2);
-	node1->setPosition(0,-30,-40); 
+  std::shared_ptr<SceneNode> player(_sceneMgr->createSceneNode("playerPaddle"));
+	_player = player;
+	_player->attachObject(ent1);
+	_sceneMgr->getRootSceneNode()->addChild(_player.get());
+	_player->setScale(4,1,1.2);
+	_player->setPosition(0,-30,-40); 
 
+  _inputHandler = std::make_shared<InputHandler>(_camera,_player);
   //Ground and Lights initialization
   _sceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);	
   _sceneMgr->setShadowColour(Ogre::ColourValue(0.5, 0.5, 0.5) );
@@ -98,6 +99,7 @@ PlayState::frameStarted
 (const Ogre::FrameEvent& evt)
 {
   _lastTime= evt.timeSinceLastFrame;
+  _inputHandler->update(evt,_player->getPosition());
   return true;
 }
 
@@ -119,7 +121,7 @@ PlayState::keyPressed
   if (e.key == OIS::KC_P) {
     pushState(PauseState::getSingletonPtr());
   }
-  _inputHandler->keyPressed(e,_camera);
+  _inputHandler->keyPressed(e);
 }
 
 void
@@ -129,6 +131,7 @@ PlayState::keyReleased
   if (e.key == OIS::KC_ESCAPE) {
     _exitGame = true;
   }
+  _inputHandler->keyReleased(e);
 }
 
 void
@@ -166,3 +169,5 @@ PlayState::getSingleton ()
 double PlayState::getTimeSinceLastTime(){
   return _lastTime;
 }
+
+

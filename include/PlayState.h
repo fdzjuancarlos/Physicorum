@@ -63,6 +63,8 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   Ogre::Camera* _camera;
 
   std::shared_ptr<InputHandler> _inputHandler;
+  std::shared_ptr<SceneNode> _player;
+
   double _lastTime;
 
   bool _exitGame;

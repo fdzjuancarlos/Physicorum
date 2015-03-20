@@ -3,17 +3,41 @@
 using namespace Ogre;
 
 
-void InputHandler::keyPressed (const OIS::KeyEvent &e, Ogre::Camera* camera){
-
-  if (e.key == OIS::KC_W) {
-    Vector3 cameraDirection = camera->getDirection();
-    Vector3 movement = Vector3(cameraDirection.x,0,cameraDirection.z);
-    camera->move(movement); 
-  }
-
+void InputHandler::keyPressed (const OIS::KeyEvent &e){
+  if (e.key == OIS::KC_W) _forward=true;
+  if (e.key == OIS::KC_S) _back=true;
+  if (e.key == OIS::KC_A) _left=true;
+  if (e.key == OIS::KC_D) _right=true;
 }
 
+void InputHandler::keyReleased (const OIS::KeyEvent &e){
+  if (e.key == OIS::KC_W) _forward=false;
+  if (e.key == OIS::KC_S) _back=false;
+  if (e.key == OIS::KC_A) _left=false;
+  if (e.key == OIS::KC_D) _right=false;
+}
 
+void InputHandler::update(const Ogre::FrameEvent& evt, Vector3 target){
+
+  Vector3 cameraPosition = _player->convertLocalToWorldPosition(Vector3(0,30,20));
+  Vector3 pointToTarget = _player->convertLocalToWorldPosition(Vector3(0,20,10));
+
+  _extendedCamera->update(evt.timeSinceLastFrame,cameraPosition,pointToTarget);
+
+  double unitOfTime = evt.timeSinceLastFrame * 10;
+
+  Vector3 forward(0,0,-unitOfTime);
+  Vector3 back(0,0,unitOfTime);
+  Vector3 left(-unitOfTime,0,0);
+  Vector3 right(unitOfTime,0,0);
+  Vector3 result(0,0,0);
+  if(_forward) result += forward;
+  if(_back) result += back;
+  if(_left)  _player->yaw(Radian(2*evt.timeSinceLastFrame));
+  if(_right) _player->yaw(Radian(-2*evt.timeSinceLastFrame)); 
+  _player->translate(result, Node::TS_LOCAL);
+
+}
 
 
 void InputHandler::mouseMoved(const OIS::MouseEvent &e){
