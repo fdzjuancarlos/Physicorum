@@ -24,13 +24,13 @@ PlayState::enter ()
 	_viewport->setBackgroundColour(Ogre::ColourValue(0.0, 0.0, 0.0));
   
 	//Paddle Initialization
-	Ogre::Entity* ent1 = _sceneMgr->createEntity("cube.mesh");
+	Ogre::Entity* ent1 = _sceneMgr->createEntity("RobotilloMesh.mesh");
 	ent1->setQueryFlags(PLAYER);
   std::shared_ptr<SceneNode> player(_sceneMgr->createSceneNode("playerPaddle"));
 	_player = player;
 	_player->attachObject(ent1);
 	_sceneMgr->getRootSceneNode()->addChild(_player.get());
-	_player->setScale(4,1,1.2);
+	_player->setScale(1,1,1);
 	_player->setPosition(0,-30,-40); 
 
   _inputHandler = std::make_shared<InputHandler>(_camera,_player);
