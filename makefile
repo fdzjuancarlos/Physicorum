@@ -11,11 +11,17 @@ DIRHEA := include/
 CXX := g++
 
 # Flags de compilación -----------------------------------------------
-CXXFLAGS := `pkg-config --cflags OGRE` -I$(DIRHEA) -Wall -std=c++11
+CXXFLAGS := `pkg-config --cflags OGRE` -I$(DIRHEA) -Wall -std=c++11 `pkg-config	\
+--cflags OgreBullet` `pkg-config --cflags bullet`
+
 
 # Flags del linker ---------------------------------------------------
-LDFLAGS := `pkg-config --libs-only-L OGRE`
-LDLIBS := `pkg-config --libs-only-l OGRE` -lOIS -lstdc++ -lboost_system
+LDFLAGS := `pkg-config --libs-only-L OGRE` `pkg-config --libs-only-l  	\
+OgreBullet` `pkg-config --libs-only-l bullet` 
+LDLIBS := `pkg-config --libs-only-l OGRE`  `pkg-config --libs-only-l	\
+OgreBullet` `pkg-config --libs-only-l bullet` -lOIS -lstdc++ -lboost_system -lConvexDecomposition -L/usr/local/lib -Wl,-rpath=/usr/local/lib
+
+
 
 # Modo de compilación (-mode=release -mode=debug) --------------------
 ifeq ($(mode), release) 

@@ -1,0 +1,14 @@
+material cube
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture Cube1_tex.tga
+			}
+		}
+	}
+}

@@ -27,6 +27,10 @@
 
 #include "GameState.h"
 
+#include <OgreBulletDynamicsRigidBody.h>
+#include <Shapes/OgreBulletCollisionsStaticPlaneShape.h>
+#include <Shapes/OgreBulletCollisionsBoxShape.h>
+
 #define PLAYER 1 << 0  // Mascara para el escenario
 #define CUBE1 1 << 1  // Mascara para objetos de tipo 1
 #define CUBE2 1 << 2  // Mascara para objetos de tipo 2
@@ -64,6 +68,10 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
 
   std::shared_ptr<InputHandler> _inputHandler;
   std::shared_ptr<SceneNode> _player;
+
+  OgreBulletDynamics::DynamicsWorld * _world;
+  std::deque <OgreBulletDynamics::RigidBody *>         _bodies;
+  std::deque <OgreBulletCollisions::CollisionShape *>  _shapes;
 
   double _lastTime;
 

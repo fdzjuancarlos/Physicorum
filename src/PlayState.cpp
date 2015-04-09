@@ -61,18 +61,57 @@ PlayState::enter ()
   light2->setSpotlightFalloff(10.0f);
   light2->setCastShadows(true);
 
-  Ogre::Plane plane1(Ogre::Vector3::UNIT_Y, -50);
-  Ogre::MeshManager::getSingleton().createPlane("plane1",
-	Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane1,
-	200,200,1,1,true,1,20,20,Ogre::Vector3::UNIT_Z);
+  //Ogre::Plane plane1(Ogre::Vector3::UNIT_Y, -50);
+  //Ogre::MeshManager::getSingleton().createPlane("plane1",
+	//Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane1,
+	//200,200,1,1,true,1,20,20,Ogre::Vector3::UNIT_Z);
 
-  Ogre::SceneNode* node2 = _sceneMgr->createSceneNode("ground");
-  Ogre::Entity* groundEnt = _sceneMgr->createEntity("planeEnt", "plane1");
-  groundEnt->setMaterialName("Ground");
-  groundEnt->setCastShadows(false);
-  node2->attachObject(groundEnt);
-  _sceneMgr->getRootSceneNode()->addChild(node2);
+  //Node* node2 = _sceneMgr->createSceneNode("ground");
+  //Ogre::Entity* groundEnt = _sceneMgr->createEntity("planeEnt", "plane1");
+  //groundEnt->setMaterialName("Ground");
+  //groundEnt->setCastShadows(false);
+ // node2->attachObject(groundEnt);
+ // _sceneMgr->getRootSceneNode()->addChild(node2);
 	_exitGame = false;
+
+  //=============PHYSICS===========//
+  // Creacion del mundo (definicion de los limites y la gravedad) ---
+  AxisAlignedBox worldBounds = AxisAlignedBox (
+    Vector3 (-10000, -10000, -10000), 
+    Vector3 (10000,  10000,  10000));
+  Vector3 gravity = Vector3(0, -9.8, 0);
+
+  _world = new OgreBulletDynamics::DynamicsWorld(_sceneMgr,
+ 	   worldBounds, gravity);
+  _world->setShowDebugShapes (true);  // Muestra los collision shapes
+
+  // Creacion de los elementos iniciales del mundo
+
+  // Creacion de la entidad y del SceneNode ------------------------
+  Plane plane1(Vector3(0,1,0), -50);    // Normal y distancia
+  MeshManager::getSingleton().createPlane("plane1",
+	ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane1,
+	200, 200, 1, 1, true, 1, 20, 20, Vector3::UNIT_Z);
+  SceneNode* node = _sceneMgr->createSceneNode("ground");
+  Entity* groundEnt = _sceneMgr->createEntity("planeEnt", "plane1");
+  groundEnt->setMaterialName("Ground");
+  node->attachObject(groundEnt);
+  _sceneMgr->getRootSceneNode()->addChild(node);
+
+  // Creamos forma de colision para el plano ----------------------- 
+  OgreBulletCollisions::CollisionShape *Shape;
+  Shape = new OgreBulletCollisions::StaticPlaneCollisionShape
+   (Ogre::Vector3(0,1,0), -50);   // Vector normal y distancia
+  OgreBulletDynamics::RigidBody *rigidBodyPlane = new 
+  OgreBulletDynamics::RigidBody("rigidBodyPlane", _world);
+
+  // Creamos la forma estatica (forma, Restitucion, Friccion) ------
+  rigidBodyPlane->setStaticShape(Shape, 0.1, 0.8); 
+  
+  // Anadimos los objetos Shape y RigidBody ------------------------
+ // _shapes.push_back(Shape);
+  _bodies.push_back(rigidBodyPlane);
+
 }
 
 void
@@ -99,6 +138,7 @@ PlayState::frameStarted
 (const Ogre::FrameEvent& evt)
 {
   _lastTime= evt.timeSinceLastFrame;
+  _world->stepSimulation(_lastTime); // Actualizar simulacion Bullet
   _inputHandler->update(evt,_player->getPosition());
   return true;
 }
@@ -110,6 +150,8 @@ PlayState::frameEnded
   if (_exitGame)
     return false;
   
+  Real deltaT = evt.timeSinceLastFrame;
+  _world->stepSimulation(deltaT); // Actualizar simulacion Bullet
   return true;
 }
 
@@ -120,6 +162,7 @@ PlayState::keyPressed
   // Tecla p --> PauseState.
   if (e.key == OIS::KC_P) {
     pushState(PauseState::getSingletonPtr());
+    _exitGame = true;
   }
   _inputHandler->keyPressed(e);
 }
@@ -129,7 +172,44 @@ PlayState::keyReleased
 (const OIS::KeyEvent &e)
 {
   if (e.key == OIS::KC_ESCAPE) {
-    _exitGame = true;
+   // _exitGame = true;
+   
+  Vector3 size = Vector3::ZERO;	// size of the box
+  // starting position of the box
+  Vector3 position = (_camera->getDerivedPosition() 
+     + _camera->getDerivedDirection().normalisedCopy() * 10);
+ 
+  Entity *entity = _sceneMgr->createEntity("Box" + 
+     StringConverter::toString(2), "cube.mesh");
+  entity->setMaterialName("cube");
+  SceneNode *node = _sceneMgr->getRootSceneNode()->
+    createChildSceneNode();
+  node->attachObject(entity);
+
+  // Obtenemos la bounding box de la entidad creada... ------------
+  AxisAlignedBox boundingB = entity->getBoundingBox();
+  size = boundingB.getSize(); 
+  size /= 2.0f;   // El tamano en Bullet se indica desde el centro
+ 
+  // after that create the Bullet shape with the calculated size
+  OgreBulletCollisions::BoxCollisionShape *boxShape = new 
+    OgreBulletCollisions::BoxCollisionShape(size);
+ // and the Bullet rigid body
+  OgreBulletDynamics::RigidBody *rigidBox = new 
+    OgreBulletDynamics::RigidBody("rigidBox" + 
+       StringConverter::toString(2), _world);
+
+  rigidBox->setShape(node, boxShape,
+		     0.6 /* Restitucion */, 0.6 /* Friccion */,
+		     5.0 /* Masa */, position /* Posicion inicial */,
+		     Quaternion(0,0,0,1) /* Orientacion */);
+/*
+  rigidBox->setLinearVelocity(
+     _camera->getDerivedDirection().normalisedCopy() * 7.0); 
+*/
+
+  // Anadimos los objetos a las deques
+//  _bodies.push_back(rigidBox);
   }
   _inputHandler->keyReleased(e);
 }
