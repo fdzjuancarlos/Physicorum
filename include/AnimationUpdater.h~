@@ -31,13 +31,15 @@
 
 class AnimationUpdater{
 
-  std::shared_ptr<SceneNode> player;
-  std::shared_ptr<AnimationBlender> _animBlender;
+  std::shared_ptr<SceneNode> _player;
+  //std::shared_ptr<AnimationBlender> _animBlender;
+  AnimationBlender *_animBlender;
   //Player events
   bool _forward;
   bool _back;
   bool _transform;
   bool _ball;
+  int _state;
 
  public:
   
@@ -45,17 +47,20 @@ class AnimationUpdater{
   AnimationUpdater(std::shared_ptr<SceneNode> player){
     _player = player;
     auto sceneMgr = Root::getSingletonPtr()->getSceneManager("SceneManager");
-    _animBlender(sceneMgr->getEntity("Robotillo"));
+    //_animBlender->AnimationBlender(sceneMgr->getEntity("Robotillo"));
+    _animBlender = new AnimationBlender(sceneMgr->getEntity("Robotillo"));
     _forward=false;
     _back=false; 
     _transform=false;
     _ball=false;
+    _state=0;
   };
   
   void keyPressed (const OIS::KeyEvent &e);
   void keyReleased (const OIS::KeyEvent &e);
 
   void update(const Ogre::FrameEvent& evt);
+  void transform(double time);
 };
 
 #endif

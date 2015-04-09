@@ -24,7 +24,7 @@
 #include <Ogre.h>
 #include <OIS/OIS.h>
 #include <InputHandler.h>
-#include "AnimationUpdater.h"
+#include <AnimationUpdater.h>
 
 #include "GameState.h"
 
@@ -53,6 +53,8 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   bool frameEnded (const Ogre::FrameEvent& evt);
 
   double getTimeSinceLastTime();
+  void robotTrans();
+
   // Heredados de Ogre::Singleton.
   static PlayState& getSingleton ();
   static PlayState* getSingletonPtr ();
@@ -69,6 +71,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   std::shared_ptr<SceneNode> _player;
 
   double _lastTime;
+  bool _Transformation;
 
   bool _exitGame;
 };

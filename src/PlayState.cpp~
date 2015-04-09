@@ -23,7 +23,7 @@ PlayState::enter ()
 	// Nuevo background colour.
 	_viewport->setBackgroundColour(Ogre::ColourValue(0.0, 0.0, 0.0));
   
-	//Paddle Initialization
+	//Player Initialization
 	Ogre::Entity* ent1 = _sceneMgr->createEntity("Robotillo", "RobotilloMesh.mesh");
 	ent1->setQueryFlags(PLAYER);
   	std::shared_ptr<SceneNode> player(_sceneMgr->createSceneNode("Player"));
@@ -141,6 +141,9 @@ PlayState::keyReleased
   if (e.key == OIS::KC_ESCAPE) {
     _exitGame = true;
   }
+  if (e.key == OIS::KC_E) {
+    _Transformation = true;
+  }
   
   _animationUpdater->keyReleased(e);
   _inputHandler->keyReleased(e);
@@ -181,5 +184,13 @@ PlayState::getSingleton ()
 double PlayState::getTimeSinceLastTime(){
   return _lastTime;
 }
+
+void PlayState::robotTrans(){
+  if(_Transformation){
+	_animationUpdater->transform(_lastTime);
+	_Transformation=false;
+  }
+}
+
 
 
