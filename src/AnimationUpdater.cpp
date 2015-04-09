@@ -1,0 +1,69 @@
+#include "AnimationUpdater.h"
+
+using namespace Ogre;
+
+void AnimationUpdater::keyPressed (const OIS::KeyEvent &e){
+  if (e.key == OIS::KC_W) _forward=true;
+  if (e.key == OIS::KC_S) _back=true;
+  
+}
+
+void AnimationUpdater::keyReleased (const OIS::KeyEvent &e){
+  if (e.key == OIS::KC_W) _forward=false;
+  if (e.key == OIS::KC_S) _back=false;
+  if (e.key == OIS::KC_E){
+	if(_transform){
+		_transform=false;
+	}else{
+		_transform=true;
+	}
+	if(_ball){
+		_ball=false;
+	}else{
+		_ball=true;
+  	}
+  }
+
+}
+
+void AnimationUpdater::update(const Ogre::FrameEvent& evt){
+
+  
+  
+  if(_ball==false){
+	if(_forward){
+		_animBlender->blend("Walk", AnimationBlender::Blend, 0.5, false);
+	}
+	else{
+		_animBlender->blend("Walk", AnimationBlender::Switch, 0, false);
+	}
+	if(_back){
+		_animBlender->blend("Moonwalk", AnimationBlender::Blend, 0.5, false);
+	}
+	else{
+		_animBlender->blend("Moonwalk", AnimationBlender::Switch, 0, false);
+	}
+//	if(_transform){
+//		_animBlender->blend("Btransform", AnimationBlender::Switch, 0, false);
+//	}
+  }else{
+	if(_forward){
+		_animBlender->blend("Bwalk", AnimationBlender::Blend, 0.5, false);
+	}
+	else{
+		_animBlender->blend("Bwalk", AnimationBlender::Switch, 0, false);
+	}
+//	if(_back){
+//		_animBlender->blend("Bmoonwalk", AnimationBlender::Blend, 0.5, true);
+//	}
+	//else{
+		//_animBlender->blend("Bmoonwalk", AnimationBlender::Switch, 0, false);
+	//}
+//	if(_transform){
+//		_animBlender->blend("Rtransform", AnimationBlender::Switch, 0, false);
+//	}
+  }
+
+	_animBlender->addTime(evt.timeSinceLastFrame);
+}
+

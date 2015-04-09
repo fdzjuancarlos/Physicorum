@@ -24,6 +24,7 @@
 #include <Ogre.h>
 #include <OIS/OIS.h>
 #include <InputHandler.h>
+#include <AnimationUpdater.h>
 
 #include "GameState.h"
 
@@ -61,8 +62,10 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   Ogre::SceneManager* _sceneMgr;
   Ogre::Viewport* _viewport;
   Ogre::Camera* _camera;
+  //AnimationBlender *_animBlender;
 
   std::shared_ptr<InputHandler> _inputHandler;
+  std::shared_ptr<AnimationUpdater> _animationUpdater;
   std::shared_ptr<SceneNode> _player;
 
   double _lastTime;

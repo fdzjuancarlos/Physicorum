@@ -18,22 +18,27 @@ PlayState::enter ()
 	//Camera configuration
 //	_camera->lookAt(Vector3(0, -15, -30));
 	_camera->setNearClipDistance(0.1);
-	_camera->setFarClipDistance(100);
+	_camera->setFarClipDistance(10);
 
 	// Nuevo background colour.
 	_viewport->setBackgroundColour(Ogre::ColourValue(0.0, 0.0, 0.0));
   
 	//Paddle Initialization
-	Ogre::Entity* ent1 = _sceneMgr->createEntity("RobotilloMesh.mesh");
+	Ogre::Entity* ent1 = _sceneMgr->createEntity("Robotillo", "RobotilloMesh.mesh");
 	ent1->setQueryFlags(PLAYER);
-  std::shared_ptr<SceneNode> player(_sceneMgr->createSceneNode("playerPaddle"));
+  	std::shared_ptr<SceneNode> player(_sceneMgr->createSceneNode("Player"));
 	_player = player;
 	_player->attachObject(ent1);
 	_sceneMgr->getRootSceneNode()->addChild(_player.get());
-	_player->setScale(4,1,1.2);
-	_player->setPosition(0,-30,-40); 
+	_player->setScale(1,1,1);
+	_player->setPosition(0,-49,-40);
 
+	//Robot Animation
+	//_animBlender = new AnimationBlender(_sceneMgr->getEntity("Robotillo"));
+  
+  _animationUpdater = std::make_shared<AnimationUpdater>(_player);
   _inputHandler = std::make_shared<InputHandler>(_camera,_player);
+
   //Ground and Lights initialization
   _sceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);	
   _sceneMgr->setShadowColour(Ogre::ColourValue(0.5, 0.5, 0.5) );
@@ -97,8 +102,11 @@ PlayState::resume()
 bool
 PlayState::frameStarted
 (const Ogre::FrameEvent& evt)
-{
+{ 
+  //_animBlender->addTime(evt.timeSinceLastFrame);
   _lastTime= evt.timeSinceLastFrame;
+  
+  _animationUpdater->update(evt);
   _inputHandler->update(evt,_player->getPosition());
   return true;
 }
@@ -121,6 +129,8 @@ PlayState::keyPressed
   if (e.key == OIS::KC_P) {
     pushState(PauseState::getSingletonPtr());
   }
+
+  _animationUpdater->keyPressed(e);
   _inputHandler->keyPressed(e);
 }
 
@@ -131,6 +141,8 @@ PlayState::keyReleased
   if (e.key == OIS::KC_ESCAPE) {
     _exitGame = true;
   }
+  
+  _animationUpdater->keyReleased(e);
   _inputHandler->keyReleased(e);
 }
 
