@@ -19,8 +19,8 @@ void InputHandler::keyReleased (const OIS::KeyEvent &e){
 
 void InputHandler::update(const Ogre::FrameEvent& evt, Vector3 target){
 
-  Vector3 cameraPosition = _player->convertLocalToWorldPosition(Vector3(0,30,20));
-  Vector3 pointToTarget = _player->convertLocalToWorldPosition(Vector3(0,20,10));
+  Vector3 cameraPosition = _player->convertLocalToWorldPosition(Vector3(0,20,20));
+  Vector3 pointToTarget = _player->convertLocalToWorldPosition(Vector3(0,15,10));
 
   _extendedCamera->update(evt.timeSinceLastFrame,cameraPosition,pointToTarget);
 

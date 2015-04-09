@@ -20,7 +20,7 @@ ExtendedCamera::ExtendedCamera (String name, SceneManager *sceneMgr, Camera *cam
   else {
       mCamera = camera;
       // just to make sure that mCamera is set to 'origin' (same position as the mCameraNode)
-      mCamera->setPosition(0.0,0.0,0.0);
+      mCamera->setPosition(0.0,0.0,10.0);
       mOwnCamera = false;
   }
   // ... and attach the Ogre camera to the camera node

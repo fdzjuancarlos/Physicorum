@@ -18,22 +18,27 @@ PlayState::enter ()
 	//Camera configuration
 //	_camera->lookAt(Vector3(0, -15, -30));
 	_camera->setNearClipDistance(0.1);
-	_camera->setFarClipDistance(100);
+	_camera->setFarClipDistance(10);
 
 	// Nuevo background colour.
 	_viewport->setBackgroundColour(Ogre::ColourValue(0.0, 0.0, 0.0));
   
-	//Paddle Initialization
-	Ogre::Entity* ent1 = _sceneMgr->createEntity("RobotilloMesh.mesh");
+	//Player Initialization
+	Ogre::Entity* ent1 = _sceneMgr->createEntity("Robotillo", "RobotilloMesh.mesh");
 	ent1->setQueryFlags(PLAYER);
-  std::shared_ptr<SceneNode> player(_sceneMgr->createSceneNode("playerPaddle"));
+  	std::shared_ptr<SceneNode> player(_sceneMgr->createSceneNode("Player"));
 	_player = player;
 	_player->attachObject(ent1);
 	_sceneMgr->getRootSceneNode()->addChild(_player.get());
 	_player->setScale(1,1,1);
-	_player->setPosition(0,-30,-40); 
+	_player->setPosition(0,-49,-40);
 
+	//Robot Animation
+	//_animBlender = new AnimationBlender(_sceneMgr->getEntity("Robotillo"));
+  
+  _animationUpdater = std::make_shared<AnimationUpdater>(_player);
   _inputHandler = std::make_shared<InputHandler>(_camera,_player);
+
   //Ground and Lights initialization
   _sceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);	
   _sceneMgr->setShadowColour(Ogre::ColourValue(0.5, 0.5, 0.5) );
@@ -136,9 +141,15 @@ PlayState::resume()
 bool
 PlayState::frameStarted
 (const Ogre::FrameEvent& evt)
-{
+{ 
+  //_animBlender->addTime(evt.timeSinceLastFrame);
   _lastTime= evt.timeSinceLastFrame;
+<<<<<<< HEAD
   _world->stepSimulation(_lastTime); // Actualizar simulacion Bullet
+=======
+  
+  _animationUpdater->update(evt);
+>>>>>>> 55973763843591931160bcc1321aa9ccb3a4a992
   _inputHandler->update(evt,_player->getPosition());
   return true;
 }
@@ -164,6 +175,8 @@ PlayState::keyPressed
     pushState(PauseState::getSingletonPtr());
     _exitGame = true;
   }
+
+  _animationUpdater->keyPressed(e);
   _inputHandler->keyPressed(e);
 }
 
@@ -211,6 +224,8 @@ PlayState::keyReleased
   // Anadimos los objetos a las deques
 //  _bodies.push_back(rigidBox);
   }
+  
+  _animationUpdater->keyReleased(e);
   _inputHandler->keyReleased(e);
 }
 
@@ -249,5 +264,7 @@ PlayState::getSingleton ()
 double PlayState::getTimeSinceLastTime(){
   return _lastTime;
 }
+
+
 
 
