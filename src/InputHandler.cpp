@@ -4,10 +4,13 @@ using namespace Ogre;
 
 
 void InputHandler::keyPressed (const OIS::KeyEvent &e){
-  if (e.key == OIS::KC_W) _forward=true;
-  if (e.key == OIS::KC_S) _back=true;
-  if (e.key == OIS::KC_A) _left=true;
-  if (e.key == OIS::KC_D) _right=true;
+  if(_input){
+    if (e.key == OIS::KC_W) _forward=true;
+    if (e.key == OIS::KC_S) _back=true;
+    if (e.key == OIS::KC_A) _left=true;
+    if (e.key == OIS::KC_D) _right=true;
+  }
+  _input=true;
 }
 
 void InputHandler::keyReleased (const OIS::KeyEvent &e){
@@ -15,6 +18,7 @@ void InputHandler::keyReleased (const OIS::KeyEvent &e){
   if (e.key == OIS::KC_S) _back=false;
   if (e.key == OIS::KC_A) _left=false;
   if (e.key == OIS::KC_D) _right=false;
+  if (e.key == OIS::KC_E) _input=false;
 }
 
 void InputHandler::update(const Ogre::FrameEvent& evt, Vector3 target){

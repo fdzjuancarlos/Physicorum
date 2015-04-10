@@ -44,6 +44,7 @@ class InputHandler{
   bool _back;
   bool _right;
   bool _left;
+  bool _input;
 
  public:
   
@@ -59,6 +60,7 @@ class InputHandler{
     _back=false; 
     _right=false;
     _left=false;
+    _input=true;
   };
   
   void keyPressed (const OIS::KeyEvent &e);

@@ -39,7 +39,7 @@ class AnimationUpdater{
   bool _back;
   bool _transform;
   bool _ball;
-  int _state;
+  bool _input;
 
  public:
   
@@ -53,7 +53,7 @@ class AnimationUpdater{
     _back=false; 
     _transform=false;
     _ball=false;
-    _state=0;
+    _input=true;
   };
   
   void keyPressed (const OIS::KeyEvent &e);
