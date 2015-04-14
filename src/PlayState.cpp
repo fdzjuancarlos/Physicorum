@@ -144,12 +144,9 @@ PlayState::frameStarted
 { 
   //_animBlender->addTime(evt.timeSinceLastFrame);
   _lastTime= evt.timeSinceLastFrame;
-<<<<<<< HEAD
   _world->stepSimulation(_lastTime); // Actualizar simulacion Bullet
-=======
   
   _animationUpdater->update(evt);
->>>>>>> 55973763843591931160bcc1321aa9ccb3a4a992
   _inputHandler->update(evt,_player->getPosition());
   return true;
 }
