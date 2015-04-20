@@ -5,6 +5,15 @@ using namespace Ogre;
 
 template<> PlayState* Ogre::Singleton<PlayState>::msSingleton = 0;
 
+bool inAbsoluteRange(float checkedFloat, float maximum){
+  return checkedFloat < maximum && checkedFloat > -maximum;
+}
+
+bool inAbsoluteRange(btVector3 playerVelocityVector, float maximum){
+  return inAbsoluteRange(playerVelocityVector.x(),maximum) && 
+  inAbsoluteRange(playerVelocityVector.y(),maximum) && 
+  inAbsoluteRange(playerVelocityVector.z(),maximum);
+}
 void
 PlayState::enter ()
 {
@@ -128,6 +137,11 @@ PlayState::enter ()
  // _shapes.push_back(Shape);
   _bodies.push_back(rigidBodyPlane);
 
+   _forward = false;
+   _back = false;
+   _left = false;
+   _right = false;
+   _ball = false;
 }
 
 void
@@ -156,6 +170,47 @@ PlayState::frameStarted
   //_animBlender->addTime(evt.timeSinceLastFrame);
   _lastTime= evt.timeSinceLastFrame;
   _world->stepSimulation(_lastTime); // Actualizar simulacion Bullet
+
+  //Movement Logic
+  btVector3 playerVelocity = rigidBoxPlayer->getBulletRigidBody()->getLinearVelocity();
+
+  if (_forward) {
+    rigidBoxPlayer->disableDeactivation();
+    Vector3 destiny = _player->convertLocalToWorldPosition(Vector3(0,0,-1));
+    Vector3 delta = destiny - _player->getPosition();
+    Vector3 normalisedDelta = delta.normalisedCopy();
+    if(inAbsoluteRange(playerVelocity,7)){
+      rigidBoxPlayer->getBulletRigidBody()->
+      applyCentralForce(btVector3(normalisedDelta.x,normalisedDelta.y,normalisedDelta.z)*8000*_lastTime);
+    }
+  }
+  if (_back) {
+    rigidBoxPlayer->disableDeactivation();
+    Vector3 destiny = _player->convertLocalToWorldPosition(Vector3(0,0,1));
+    Vector3 delta = destiny - _player->getPosition();
+    Vector3 normalisedDelta = delta.normalisedCopy();
+    if(inAbsoluteRange(playerVelocity,7)){
+      rigidBoxPlayer->getBulletRigidBody()->
+      applyCentralForce(btVector3(normalisedDelta.x,-normalisedDelta.y,normalisedDelta.z)*8000*_lastTime);
+    }
+  }
+  float maxAngular = 0.5;
+  if (_left) {
+    rigidBoxPlayer->disableDeactivation();
+    float velocity = rigidBoxPlayer->getBulletRigidBody()->getAngularVelocity().y();
+    if(velocity < maxAngular){
+    rigidBoxPlayer->getBulletRigidBody()->
+      applyTorque(btVector3(0,200,0));
+    }
+  }
+  if (_right) {
+    rigidBoxPlayer->disableDeactivation();
+    float velocity = rigidBoxPlayer->getBulletRigidBody()->getAngularVelocity().y();
+    if(velocity > -maxAngular){
+    rigidBoxPlayer->getBulletRigidBody()->
+      applyTorque(btVector3(0,-200,0));
+    }
+  }
   
   _animationUpdater->update(evt);
   _inputHandler->update(evt,_player->getPosition());
@@ -184,21 +239,34 @@ PlayState::keyPressed
     _exitGame = true;
   }
   if (e.key == OIS::KC_W) {
-    rigidBoxPlayer->disableDeactivation();
-    Vector3 destiny = _player->convertLocalToWorldPosition(Vector3(0,0,-1));
-    Vector3 delta = destiny - _player->getPosition();
-    Vector3 normalisedDelta = delta.normalisedCopy();
-    rigidBoxPlayer->getBulletRigidBody()->
-      applyCentralForce(btVector3(normalisedDelta.x,normalisedDelta.y,normalisedDelta.z)*1000);
+    _forward = true;
   }
   if (e.key == OIS::KC_S) {
-    rigidBoxPlayer->disableDeactivation();
-    Vector3 destiny = _player->convertLocalToWorldPosition(Vector3(0,0,1));
-    Vector3 delta = destiny - _player->getPosition();
-    Vector3 normalisedDelta = delta.normalisedCopy();
-    rigidBoxPlayer->getBulletRigidBody()->
-      applyCentralForce(btVector3(normalisedDelta.x,normalisedDelta.y,normalisedDelta.z)*1000);
+    _back = true;
   }
+
+  if (e.key == OIS::KC_A) {
+    _left = true;
+  }
+  if (e.key == OIS::KC_D) {
+    _right = true;
+  }
+  if (e.key == OIS::KC_E) {
+    _ball = !_ball;
+    if(_ball){
+  OgreBulletCollisions::CollisionShape *ballShape = new 
+    OgreBulletCollisions::SphereCollisionShape(2.3);
+
+ rigidBoxPlayer = new 
+    OgreBulletDynamics::RigidBody("rrrigidBoxPlayer" + 
+       StringConverter::toString(2), _world);
+  rigidBoxPlayer->setShape(_player.get(), ballShape,
+		     0.6 /* Restitucion */, 0.6 /* Friccion */,
+		     5.0 /* Masa */, _player->getPosition()/* Posicion inicial */,
+		     Quaternion(0,0,-180,1) /* Orientacion */);
+    }
+  }
+  
 
   _animationUpdater->keyPressed(e);
  // _inputHandler->keyPressed(e);
@@ -249,6 +317,18 @@ PlayState::keyReleased
 //  _bodies.push_back(rigidBox);
   }
   
+  if (e.key == OIS::KC_W) {
+    _forward = false;
+  }
+  if (e.key == OIS::KC_S) {
+    _back = false;
+  }
+  if (e.key == OIS::KC_A) {
+    _left = false;
+  }
+  if (e.key == OIS::KC_D) {
+    _right = false;
+  }
   _animationUpdater->keyReleased(e);
   _inputHandler->keyReleased(e);
 }
