@@ -72,6 +72,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   std::shared_ptr<InputHandler> _inputHandler;
   std::shared_ptr<AnimationUpdater> _animationUpdater;
   std::shared_ptr<SceneNode> _player;
+  OgreBulletDynamics::RigidBody *rigidBoxPlayer;
 
   OgreBulletDynamics::DynamicsWorld * _world;
   std::deque <OgreBulletDynamics::RigidBody *>         _bodies;

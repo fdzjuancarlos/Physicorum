@@ -23,22 +23,6 @@ PlayState::enter ()
 	// Nuevo background colour.
 	_viewport->setBackgroundColour(Ogre::ColourValue(0.0, 0.0, 0.0));
   
-	//Player Initialization
-	Ogre::Entity* ent1 = _sceneMgr->createEntity("Robotillo", "RobotilloMesh.mesh");
-	ent1->setQueryFlags(PLAYER);
-  	std::shared_ptr<SceneNode> player(_sceneMgr->createSceneNode("Player"));
-	_player = player;
-	_player->attachObject(ent1);
-	_sceneMgr->getRootSceneNode()->addChild(_player.get());
-	_player->setScale(1,1,1);
-	_player->setPosition(0,-49,-40);
-
-	//Robot Animation
-	//_animBlender = new AnimationBlender(_sceneMgr->getEntity("Robotillo"));
-  
-  _animationUpdater = std::make_shared<AnimationUpdater>(_player);
-  _inputHandler = std::make_shared<InputHandler>(_camera,_player);
-
   //Ground and Lights initialization
   _sceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);	
   _sceneMgr->setShadowColour(Ogre::ColourValue(0.5, 0.5, 0.5) );
@@ -113,6 +97,33 @@ PlayState::enter ()
   // Creamos la forma estatica (forma, Restitucion, Friccion) ------
   rigidBodyPlane->setStaticShape(Shape, 0.1, 0.8); 
   
+	//Player Initialization
+	Ogre::Entity* ent1 = _sceneMgr->createEntity("Robotillo", "RobotilloMesh.mesh");
+	ent1->setQueryFlags(PLAYER);
+  	std::shared_ptr<SceneNode> player(_sceneMgr->createSceneNode("Player"));
+	_player = player;
+	_player->attachObject(ent1);
+	_sceneMgr->getRootSceneNode()->addChild(_player.get());
+	_player->setScale(1,1,1);
+	_player->setPosition(0,-49,-40);
+
+  OgreBulletCollisions::BoxCollisionShape *boxShape = new 
+    OgreBulletCollisions::BoxCollisionShape(Vector3(2,2,2));
+ // and the Bullet rigid body
+ rigidBoxPlayer = new 
+    OgreBulletDynamics::RigidBody("rrigidBoxPlayer" + 
+       StringConverter::toString(2), _world);
+
+  rigidBoxPlayer->setShape(_player.get(), boxShape,
+		     0.6 /* Restitucion */, 0.6 /* Friccion */,
+		     5.0 /* Masa */, _player->getPosition()/* Posicion inicial */,
+		     Quaternion(0,0,-180,1) /* Orientacion */);
+	//Robot Animation
+	//_animBlender = new AnimationBlender(_sceneMgr->getEntity("Robotillo"));
+  
+  _animationUpdater = std::make_shared<AnimationUpdater>(_player);
+  _inputHandler = std::make_shared<InputHandler>(_camera,_player);
+
   // Anadimos los objetos Shape y RigidBody ------------------------
  // _shapes.push_back(Shape);
   _bodies.push_back(rigidBodyPlane);
@@ -172,9 +183,25 @@ PlayState::keyPressed
     pushState(PauseState::getSingletonPtr());
     _exitGame = true;
   }
+  if (e.key == OIS::KC_W) {
+    rigidBoxPlayer->disableDeactivation();
+    Vector3 destiny = _player->convertLocalToWorldPosition(Vector3(0,0,-1));
+    Vector3 delta = destiny - _player->getPosition();
+    Vector3 normalisedDelta = delta.normalisedCopy();
+    rigidBoxPlayer->getBulletRigidBody()->
+      applyCentralForce(btVector3(normalisedDelta.x,normalisedDelta.y,normalisedDelta.z)*1000);
+  }
+  if (e.key == OIS::KC_S) {
+    rigidBoxPlayer->disableDeactivation();
+    Vector3 destiny = _player->convertLocalToWorldPosition(Vector3(0,0,1));
+    Vector3 delta = destiny - _player->getPosition();
+    Vector3 normalisedDelta = delta.normalisedCopy();
+    rigidBoxPlayer->getBulletRigidBody()->
+      applyCentralForce(btVector3(normalisedDelta.x,normalisedDelta.y,normalisedDelta.z)*1000);
+  }
 
   _animationUpdater->keyPressed(e);
-  _inputHandler->keyPressed(e);
+ // _inputHandler->keyPressed(e);
 }
 
 void
