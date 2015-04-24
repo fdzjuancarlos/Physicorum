@@ -21,12 +21,27 @@ void InputHandler::keyReleased (const OIS::KeyEvent &e){
   if (e.key == OIS::KC_E) _input=false;
 }
 
-void InputHandler::update(const Ogre::FrameEvent& evt, Vector3 target){
+void InputHandler::update(const Ogre::FrameEvent& evt, Vector3 target, bool ball){
 
-  Vector3 cameraPosition = _player->convertLocalToWorldPosition(Vector3(0,20,20));
-  Vector3 pointToTarget = _player->convertLocalToWorldPosition(Vector3(0,15,10));
+  if(!ball){
+     Vector3 cameraPosition = _player->convertLocalToWorldPosition(Vector3(0,20,20));
+     Vector3 pointToTarget = _player->convertLocalToWorldPosition(Vector3(0,15,10));
 
-  _extendedCamera->update(evt.timeSinceLastFrame,cameraPosition,pointToTarget);
+    // Vector3 cameraPosition = _player->getPosition() + Vector3(0,20,20); 
+    // Vector3 pointToTarget = _player->getPosition() + Vector3(0,15,10); 
+
+     _extendedCamera->update(evt.timeSinceLastFrame,cameraPosition,pointToTarget);
+  }else{
+
+     Vector3 cameraPosition = _player->getPosition() + Vector3(0,20,20); 
+     Vector3 pointToTarget = _player->getPosition() + Vector3(0,15,10); 
+
+     cameraPosition += Vector3(0,0,0);
+     pointToTarget += Vector3(0,0,0);
+
+     _extendedCamera->update(evt.timeSinceLastFrame,cameraPosition,pointToTarget);
+     
+  }
 
   double unitOfTime = evt.timeSinceLastFrame * 10;
 

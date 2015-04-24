@@ -175,21 +175,30 @@ PlayState::frameStarted
   btVector3 playerVelocity = rigidBoxPlayer->getBulletRigidBody()->getLinearVelocity();
 
   if (_forward) {
-    rigidBoxPlayer->disableDeactivation();
-    Vector3 destiny = _player->convertLocalToWorldPosition(Vector3(0,0,-1));
-    Vector3 delta = destiny - _player->getPosition();
-    Vector3 normalisedDelta = delta.normalisedCopy();
-    if(inAbsoluteRange(playerVelocity,7)){
-      rigidBoxPlayer->getBulletRigidBody()->
-      applyCentralForce(btVector3(normalisedDelta.x,normalisedDelta.y,normalisedDelta.z)*8000*_lastTime);
-    }
+      rigidBoxPlayer->disableDeactivation();
+      Vector3 destiny;
+      if(!_ball)
+        destiny = _player->convertLocalToWorldPosition(Vector3(0,0,-1));
+      else
+        destiny = _player->getPosition() - Vector3(0,0,10);
+
+      Vector3 delta = destiny - _player->getPosition();
+      Vector3 normalisedDelta = delta.normalisedCopy();
+      if(inAbsoluteRange(playerVelocity,7) || _ball){
+        rigidBoxPlayer->getBulletRigidBody()->
+        applyCentralForce(btVector3(normalisedDelta.x,normalisedDelta.y,normalisedDelta.z)*8000*_lastTime);
+      }
   }
   if (_back) {
     rigidBoxPlayer->disableDeactivation();
-    Vector3 destiny = _player->convertLocalToWorldPosition(Vector3(0,0,1));
+    Vector3 destiny;
+      if(!_ball)
+        destiny = _player->convertLocalToWorldPosition(Vector3(0,0,1));
+      else
+        destiny = _player->getPosition() - Vector3(0,0,-10);
     Vector3 delta = destiny - _player->getPosition();
     Vector3 normalisedDelta = delta.normalisedCopy();
-    if(inAbsoluteRange(playerVelocity,7)){
+    if(inAbsoluteRange(playerVelocity,7) || _ball){
       rigidBoxPlayer->getBulletRigidBody()->
       applyCentralForce(btVector3(normalisedDelta.x,-normalisedDelta.y,normalisedDelta.z)*8000*_lastTime);
     }
@@ -197,23 +206,45 @@ PlayState::frameStarted
   float maxAngular = 0.5;
   if (_left) {
     rigidBoxPlayer->disableDeactivation();
-    float velocity = rigidBoxPlayer->getBulletRigidBody()->getAngularVelocity().y();
-    if(velocity < maxAngular){
-    rigidBoxPlayer->getBulletRigidBody()->
-      applyTorque(btVector3(0,200,0));
+    if(!_ball){
+      float velocity = rigidBoxPlayer->getBulletRigidBody()->getAngularVelocity().y();
+      if(velocity < maxAngular){
+        rigidBoxPlayer->getBulletRigidBody()->
+          applyTorque(btVector3(0,200,0));
+      }
+    }else{
+      Vector3 destiny;
+      destiny = _player->getPosition() - Vector3(10,0,0);
+      Vector3 delta = destiny - _player->getPosition();
+      Vector3 normalisedDelta = delta.normalisedCopy();
+      if(inAbsoluteRange(playerVelocity,7) || _ball){
+        rigidBoxPlayer->getBulletRigidBody()->
+        applyCentralForce(btVector3(normalisedDelta.x,-normalisedDelta.y,normalisedDelta.z)*8000*_lastTime);
+      }
     }
   }
   if (_right) {
-    rigidBoxPlayer->disableDeactivation();
-    float velocity = rigidBoxPlayer->getBulletRigidBody()->getAngularVelocity().y();
-    if(velocity > -maxAngular){
-    rigidBoxPlayer->getBulletRigidBody()->
-      applyTorque(btVector3(0,-200,0));
+    if(!_ball){
+      rigidBoxPlayer->disableDeactivation();
+      float velocity = rigidBoxPlayer->getBulletRigidBody()->getAngularVelocity().y();
+      if(velocity > -maxAngular){
+      rigidBoxPlayer->getBulletRigidBody()->
+        applyTorque(btVector3(0,-200,0));
+      }
+    }else{
+      Vector3 destiny;
+      destiny = _player->getPosition() - Vector3(-10,0,0);
+      Vector3 delta = destiny - _player->getPosition();
+      Vector3 normalisedDelta = delta.normalisedCopy();
+      if(inAbsoluteRange(playerVelocity,7) || _ball){
+        rigidBoxPlayer->getBulletRigidBody()->
+        applyCentralForce(btVector3(normalisedDelta.x,-normalisedDelta.y,normalisedDelta.z)*8000*_lastTime);
+      }
     }
   }
   
   _animationUpdater->update(evt);
-  _inputHandler->update(evt,_player->getPosition());
+  _inputHandler->update(evt,_player->getPosition(),_ball);
   return true;
 }
 
