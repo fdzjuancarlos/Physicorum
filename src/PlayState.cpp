@@ -25,7 +25,6 @@ PlayState::enter ()
 	_viewport = _root->getAutoCreatedWindow()->addViewport(_camera);
 	
 	//Camera configuration
-//	_camera->lookAt(Vector3(0, -15, -30));
 	_camera->setNearClipDistance(0.1);
 	_camera->setFarClipDistance(10);
 
@@ -59,17 +58,8 @@ PlayState::enter ()
   light2->setSpotlightFalloff(10.0f);
   light2->setCastShadows(true);
 
-  //Ogre::Plane plane1(Ogre::Vector3::UNIT_Y, -50);
-  //Ogre::MeshManager::getSingleton().createPlane("plane1",
-	//Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane1,
-	//200,200,1,1,true,1,20,20,Ogre::Vector3::UNIT_Z);
+  _changes = 0;
 
-  //Node* node2 = _sceneMgr->createSceneNode("ground");
-  //Ogre::Entity* groundEnt = _sceneMgr->createEntity("planeEnt", "plane1");
-  //groundEnt->setMaterialName("Ground");
-  //groundEnt->setCastShadows(false);
- // node2->attachObject(groundEnt);
- // _sceneMgr->getRootSceneNode()->addChild(node2);
 	_exitGame = false;
 
   //=============PHYSICS===========//
@@ -285,16 +275,35 @@ PlayState::keyPressed
   if (e.key == OIS::KC_E) {
     _ball = !_ball;
     if(_ball){
-  OgreBulletCollisions::CollisionShape *ballShape = new 
-    OgreBulletCollisions::SphereCollisionShape(2.3);
+      OgreBulletCollisions::CollisionShape *ballShape = new 
+        OgreBulletCollisions::SphereCollisionShape(1.5);
 
- rigidBoxPlayer = new 
-    OgreBulletDynamics::RigidBody("rrrigidBoxPlayer" + 
-       StringConverter::toString(2), _world);
-  rigidBoxPlayer->setShape(_player.get(), ballShape,
-		     0.6 /* Restitucion */, 0.6 /* Friccion */,
-		     5.0 /* Masa */, _player->getPosition()/* Posicion inicial */,
-		     Quaternion(0,0,-180,1) /* Orientacion */);
+      Vector3 samePosition = rigidBoxPlayer->getSceneNode()->getPosition();
+      _changes++;
+
+      rigidBoxPlayer = new 
+        OgreBulletDynamics::RigidBody("rigidBoxPlayer" + 
+           StringConverter::toString(_changes), _world);
+      rigidBoxPlayer->setShape(_player.get(), ballShape,
+             0.6 /* Restitucion */, 0.6 /* Friccion */,
+             5.0 /* Masa */, samePosition/* Posicion inicial */,
+             Quaternion(0,0,-180,1) /* Orientacion */);
+    }else{
+      OgreBulletCollisions::BoxCollisionShape *boxShape = new 
+        OgreBulletCollisions::BoxCollisionShape(Vector3(2,2,2));
+
+      Vector3 samePosition = rigidBoxPlayer->getSceneNode()->getPosition();
+      samePosition += Vector3(0,4,0);
+      _changes++;
+
+      rigidBoxPlayer = new 
+        OgreBulletDynamics::RigidBody("rigidBox" + 
+           StringConverter::toString(_changes), _world);
+
+      rigidBoxPlayer->setShape(_player.get(), boxShape,
+             0.6 /* Restitucion */, 0.6 /* Friccion */,
+             5.0 /* Masa */, samePosition/* Posicion inicial */,
+             Quaternion(0,0,-180,1) /* Orientacion */);
     }
   }
   

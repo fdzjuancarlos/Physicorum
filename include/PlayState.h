@@ -80,6 +80,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   std::deque <OgreBulletCollisions::CollisionShape *>  _shapes;
 
   double _lastTime;
+  int _changes;
 
   bool _exitGame;
 
