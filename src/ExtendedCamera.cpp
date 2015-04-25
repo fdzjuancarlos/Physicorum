@@ -42,6 +42,7 @@ void ExtendedCamera::setTightness (Real tightness) {
   mTightness = tightness;
 }
  
+
 Real ExtendedCamera::getTightness () {
   return mTightness;
 }

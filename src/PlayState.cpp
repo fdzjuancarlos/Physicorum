@@ -1,5 +1,8 @@
 #include "PlayState.h"
 #include "PauseState.h"
+#include "Shapes/OgreBulletCollisionsTrimeshShape.h"	
+#include "Shapes/OgreBulletCollisionsSphereShape.h"	
+#include "Utils/OgreBulletCollisionsMeshToShapeConverter.h"
 
 using namespace Ogre;
 
@@ -14,6 +17,64 @@ bool inAbsoluteRange(btVector3 playerVelocityVector, float maximum){
   inAbsoluteRange(playerVelocityVector.y(),maximum) && 
   inAbsoluteRange(playerVelocityVector.z(),maximum);
 }
+
+void scaleMesh(const Ogre::Entity *_ent, const Ogre::Vector3 &_scale)
+{
+    bool added_shared = false;
+    Ogre::Mesh* mesh = _ent->getMesh().getPointer();
+    Ogre::Vector3 Minimum=mesh->getBounds().getMaximum();
+    Ogre::Vector3 Maximum=mesh->getBounds().getMinimum();
+
+    // Run through the submeshes, modifying the data
+    for(int i = 0;i < mesh->getNumSubMeshes();i++)
+    {
+        Ogre::SubMesh* submesh = mesh->getSubMesh(i);
+
+        Ogre::VertexData* vertex_data = submesh->useSharedVertices ? mesh->sharedVertexData : submesh->vertexData;
+        if((!submesh->useSharedVertices)||(submesh->useSharedVertices && !added_shared))
+        {
+            if(submesh->useSharedVertices)
+            {
+                added_shared = true;
+            }
+
+            const Ogre::VertexElement* posElem = vertex_data->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
+            Ogre::HardwareVertexBufferSharedPtr vbuf = vertex_data->vertexBufferBinding->getBuffer(posElem->getSource());
+            // lock buffer for read and write access
+            unsigned char* vertex = static_cast<unsigned char*>(vbuf->lock(Ogre::HardwareBuffer::HBL_NORMAL));
+            Ogre::Real* pReal;
+
+            for(size_t j = 0; j < vertex_data->vertexCount; ++j, vertex += vbuf->getVertexSize())
+            {
+                posElem->baseVertexPointerToElement(vertex, &pReal);
+
+                // modify x coord
+                (*pReal) *= _scale.x;
+                ++pReal;
+
+                // modify y coord
+                (*pReal) *= _scale.y;
+                ++pReal;
+
+                // modify z coord
+                (*pReal) *= _scale.z;
+                pReal-=2;
+
+                Minimum.x=Minimum.x<(*pReal)?Minimum.x:(*pReal);
+                Maximum.x=Maximum.x>(*pReal)?Maximum.x:(*pReal);
+                ++pReal;
+                Minimum.y=Minimum.y<(*pReal)?Minimum.y:(*pReal);
+                Maximum.y=Maximum.y>(*pReal)?Maximum.y:(*pReal);
+                ++pReal;
+                Minimum.z=Minimum.z<(*pReal)?Minimum.z:(*pReal);
+                Maximum.z=Maximum.z>(*pReal)?Maximum.z:(*pReal);
+            }
+            vbuf->unlock();
+        }
+    }
+    mesh->_setBounds(Ogre::AxisAlignedBox(Minimum,Maximum),false);
+}
+
 void
 PlayState::enter ()
 {
@@ -75,6 +136,26 @@ PlayState::enter ()
 
   // Creacion de los elementos iniciales del mundo
 
+  // Creacion del track --------------------------------------------------
+  Entity *entity = _sceneMgr->createEntity("Level1Mesh.mesh");
+  SceneNode *trackNode = _sceneMgr->createSceneNode("track");
+  scaleMesh(entity,Vector3(2,2,2));
+  trackNode->attachObject(entity);
+
+
+  _sceneMgr->getRootSceneNode()->addChild(trackNode);
+  OgreBulletCollisions::StaticMeshToShapeConverter *trimeshConverter = new 
+    OgreBulletCollisions::StaticMeshToShapeConverter(entity);
+
+  OgreBulletCollisions::TriangleMeshCollisionShape *trackTrimesh = 
+    trimeshConverter->createTrimesh();
+
+  OgreBulletDynamics::RigidBody *rigidTrack = new 
+    OgreBulletDynamics::RigidBody("track", _world);
+  rigidTrack->setShape(trackNode, trackTrimesh, 0.8, 0.95, 0, Vector3(20,-49.5,85), 
+		      Quaternion(-180,0,-180,1));
+
+  delete trimeshConverter;
   // Creacion de la entidad y del SceneNode ------------------------
   Plane plane1(Vector3(0,1,0), -50);    // Normal y distancia
   MeshManager::getSingleton().createPlane("plane1",
@@ -104,7 +185,7 @@ PlayState::enter ()
 	_player->attachObject(ent1);
 	_sceneMgr->getRootSceneNode()->addChild(_player.get());
 	_player->setScale(1,1,1);
-	_player->setPosition(0,-49,-40);
+	_player->setPosition(0,-69,-40);
 
   OgreBulletCollisions::BoxCollisionShape *boxShape = new 
     OgreBulletCollisions::BoxCollisionShape(Vector3(2,2,2));
@@ -115,8 +196,10 @@ PlayState::enter ()
 
   rigidBoxPlayer->setShape(_player.get(), boxShape,
 		     0.6 /* Restitucion */, 0.6 /* Friccion */,
-		     5.0 /* Masa */, _player->getPosition()/* Posicion inicial */,
+		     5.0 /* Masa */, Vector3(0,-40,0)/* Posicion inicial */,
 		     Quaternion(0,0,-180,1) /* Orientacion */);
+ rigidBoxPlayer->getBulletRigidBody()->setLinearFactor(btVector3(1,1,1));
+ rigidBoxPlayer->getBulletRigidBody()->setAngularFactor(btVector3(0,1,0));
 	//Robot Animation
 	//_animBlender = new AnimationBlender(_sceneMgr->getEntity("Robotillo"));
   
@@ -132,6 +215,9 @@ PlayState::enter ()
    _left = false;
    _right = false;
    _ball = false;
+   _firstperson = false;
+   _leftShooting = false;
+   _newtons = 0;
 }
 
 void
@@ -164,14 +250,22 @@ PlayState::frameStarted
   //Movement Logic
   btVector3 playerVelocity = rigidBoxPlayer->getBulletRigidBody()->getLinearVelocity();
 
+  Quaternion prueba = _camera->getOrientation();
+
   if (_forward) {
       rigidBoxPlayer->disableDeactivation();
       Vector3 destiny;
       if(!_ball)
         destiny = _player->convertLocalToWorldPosition(Vector3(0,0,-1));
-      else
-        destiny = _player->getPosition() - Vector3(0,0,10);
-
+      else{
+        if(_firstperson){
+          Vector3 direction = _camera->getDirection();
+          direction.y = 0;
+          destiny = _player->getPosition() +  direction * 10;
+        }else{
+          destiny = _player->getPosition() - Vector3(0,0,10);
+        }
+      }
       Vector3 delta = destiny - _player->getPosition();
       Vector3 normalisedDelta = delta.normalisedCopy();
       if(inAbsoluteRange(playerVelocity,7) || _ball){
@@ -184,8 +278,15 @@ PlayState::frameStarted
     Vector3 destiny;
       if(!_ball)
         destiny = _player->convertLocalToWorldPosition(Vector3(0,0,1));
-      else
-        destiny = _player->getPosition() - Vector3(0,0,-10);
+      else{
+        if(_firstperson){
+          Vector3 direction = _camera->getDirection();
+          direction.y = 0;
+          destiny = _player->getPosition() -  direction * 10;
+        }else{
+          destiny = _player->getPosition() - Vector3(0,0,-10);
+        }
+      }
     Vector3 delta = destiny - _player->getPosition();
     Vector3 normalisedDelta = delta.normalisedCopy();
     if(inAbsoluteRange(playerVelocity,7) || _ball){
@@ -204,7 +305,13 @@ PlayState::frameStarted
       }
     }else{
       Vector3 destiny;
-      destiny = _player->getPosition() - Vector3(10,0,0);
+      if(_firstperson){
+          Vector3 direction = _camera->getDirection();
+          direction.y = 0;
+          destiny = _player->getPosition() - Quaternion(Degree(-90),Vector3::UNIT_Y) * direction * 10;
+      }else{
+        destiny = _player->getPosition() - Vector3(10,0,0);
+      }
       Vector3 delta = destiny - _player->getPosition();
       Vector3 normalisedDelta = delta.normalisedCopy();
       if(inAbsoluteRange(playerVelocity,7) || _ball){
@@ -223,7 +330,13 @@ PlayState::frameStarted
       }
     }else{
       Vector3 destiny;
-      destiny = _player->getPosition() - Vector3(-10,0,0);
+      if(_firstperson){
+          Vector3 direction = _camera->getDirection();
+          direction.y = 0;
+          destiny = _player->getPosition() - Quaternion(Degree(90),Vector3::UNIT_Y) * direction * 10;
+      }else{
+          destiny = _player->getPosition() - Vector3(-10,0,0);
+      }
       Vector3 delta = destiny - _player->getPosition();
       Vector3 normalisedDelta = delta.normalisedCopy();
       if(inAbsoluteRange(playerVelocity,7) || _ball){
@@ -232,9 +345,28 @@ PlayState::frameStarted
       }
     }
   }
+  // Shoot Logic
+  if(_ball && _firstperson && _leftShooting){
+    _newtons += evt.timeSinceLastFrame * 2;
+    std::cout << _newtons << std::endl;
+  }
+  if(_ball && _firstperson && !_leftShooting && _newtons != 0){
+      rigidBoxPlayer->disableDeactivation();
+      Vector3 destiny;
+      Vector3 direction = _camera->getDirection();
+      destiny = _player->getPosition() +  direction * 10;
+      Vector3 delta = destiny - _player->getPosition();
+      Vector3 normalisedDelta = delta.normalisedCopy();
+      if(inAbsoluteRange(playerVelocity,7) || _ball){
+        rigidBoxPlayer->getBulletRigidBody()->
+        applyCentralForce(btVector3(normalisedDelta.x,normalisedDelta.y,normalisedDelta.z)
+            *18000*_newtons);
+      }
+      _newtons = 0;
+  }
   
   _animationUpdater->update(evt);
-  _inputHandler->update(evt,_player->getPosition(),_ball);
+  _inputHandler->update(evt,_player->getPosition(),_ball, _firstperson);
   return true;
 }
 
@@ -289,6 +421,7 @@ PlayState::keyPressed
              5.0 /* Masa */, samePosition/* Posicion inicial */,
              Quaternion(0,0,-180,1) /* Orientacion */);
     }else{
+      _firstperson = false;
       OgreBulletCollisions::BoxCollisionShape *boxShape = new 
         OgreBulletCollisions::BoxCollisionShape(Vector3(2,2,2));
 
@@ -304,10 +437,23 @@ PlayState::keyPressed
              0.6 /* Restitucion */, 0.6 /* Friccion */,
              5.0 /* Masa */, samePosition/* Posicion inicial */,
              Quaternion(0,0,-180,1) /* Orientacion */);
+//   rigidBoxPlayer->getBulletRigidBody()->setLinearFactor(btVector3(1,1,1));
+ //  rigidBoxPlayer->getBulletRigidBody()->setAngularFactor(btVector3(0,1,0));
+    }
+  
+  } 
+
+  if (e.key == OIS::KC_Q) {
+      std::cout << "heh"<< std::endl;
+    if(!_firstperson && _ball){
+      _firstperson = true;
+      _player->setVisible(false);
+      std::cout << "false"<< std::endl;
+    }else if(_firstperson && _ball){
+      _firstperson = false;
+      _player->setVisible(true);
     }
   }
-  
-
   _animationUpdater->keyPressed(e);
  // _inputHandler->keyPressed(e);
 }
@@ -384,12 +530,18 @@ void
 PlayState::mousePressed
 (const OIS::MouseEvent &e, OIS::MouseButtonID id)
 {
+  if (id == OIS::MB_Left) {
+    _leftShooting = true;
+  }
 }
 
 void
 PlayState::mouseReleased
 (const OIS::MouseEvent &e, OIS::MouseButtonID id)
 {
+  if (id == OIS::MB_Left) {
+    _leftShooting = false;
+  }
 }
 
 PlayState*

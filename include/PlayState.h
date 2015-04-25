@@ -91,6 +91,10 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   bool _right;
 
   bool _ball;
+  bool _firstperson;
+  bool _leftShooting;
+
+  double _newtons;
 
 
 };
