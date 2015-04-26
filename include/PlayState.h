@@ -73,6 +73,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   std::shared_ptr<InputHandler> _inputHandler;
   std::shared_ptr<AnimationUpdater> _animationUpdater;
   std::shared_ptr<SceneNode> _player;
+  std::shared_ptr<SceneNode> _coordVisor;
   OgreBulletDynamics::RigidBody *rigidBoxPlayer;
 
   OgreBulletDynamics::DynamicsWorld * _world;
@@ -94,7 +95,10 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   bool _firstperson;
   bool _leftShooting;
 
+  bool _win;
+
   double _newtons;
+  double _cameraZoom;
 
 
 };

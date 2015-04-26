@@ -187,6 +187,16 @@ PlayState::enter ()
 	_player->setScale(1,1,1);
 	_player->setPosition(0,-69,-40);
 
+  //DEBUG ONLY Coordinator Situate
+	Ogre::Entity* ent2 = _sceneMgr->createEntity("DEBUG SEE", "RobotilloMesh.mesh");
+  	std::shared_ptr<SceneNode> visor(_sceneMgr->createSceneNode("DEBUG"));
+	_coordVisor = visor;
+	_coordVisor->attachObject(ent2);
+	_sceneMgr->getRootSceneNode()->addChild(_coordVisor.get());
+	_coordVisor->setScale(1,1,1);
+	_coordVisor->setPosition(0,-40,0);
+  //NOT DEBUG
+
   OgreBulletCollisions::BoxCollisionShape *boxShape = new 
     OgreBulletCollisions::BoxCollisionShape(Vector3(2,2,2));
  // and the Bullet rigid body
@@ -217,6 +227,8 @@ PlayState::enter ()
    _ball = false;
    _firstperson = false;
    _leftShooting = false;
+   _win = false;
+   _cameraZoom = 0;
    _newtons = 0;
 }
 
@@ -247,6 +259,11 @@ PlayState::frameStarted
   _lastTime= evt.timeSinceLastFrame;
   _world->stepSimulation(_lastTime); // Actualizar simulacion Bullet
 
+  //Win Logic
+  if(2 > _player->getPosition().distance(Vector3(-95,-28,31))){
+    _win = true;
+    std::cout << "Win Condition!" << std::endl;
+  }
   //Movement Logic
   btVector3 playerVelocity = rigidBoxPlayer->getBulletRigidBody()->getLinearVelocity();
 
@@ -366,7 +383,7 @@ PlayState::frameStarted
   }
   
   _animationUpdater->update(evt);
-  _inputHandler->update(evt,_player->getPosition(),_ball, _firstperson);
+  _inputHandler->update(evt,_player->getPosition(),_ball, _firstperson, _cameraZoom);
   return true;
 }
 
@@ -440,6 +457,8 @@ PlayState::keyPressed
 //   rigidBoxPlayer->getBulletRigidBody()->setLinearFactor(btVector3(1,1,1));
  //  rigidBoxPlayer->getBulletRigidBody()->setAngularFactor(btVector3(0,1,0));
     }
+
+
   
   } 
 
@@ -453,6 +472,38 @@ PlayState::keyPressed
       _firstperson = false;
       _player->setVisible(true);
     }
+  }
+  if (e.key == OIS::KC_UP) {
+    _cameraZoom += 1;
+  }
+  if (e.key == OIS::KC_DOWN) {
+    _cameraZoom -= 1;
+  }
+  // === DEBUG === //
+  if (e.key == OIS::KC_NUMPAD1) {
+    _coordVisor->translate(Vector3(1,0,0));
+  }
+  if (e.key == OIS::KC_NUMPAD2) {
+    _coordVisor->translate(Vector3(-1,0,0));
+  }
+  if (e.key == OIS::KC_NUMPAD4) {
+    _coordVisor->translate(Vector3(0,1,0));
+  }
+  if (e.key == OIS::KC_NUMPAD5) {
+    _coordVisor->translate(Vector3(0,-1,0));
+  }
+  if (e.key == OIS::KC_NUMPAD7) {
+    _coordVisor->translate(Vector3(0,0,1));
+  }
+  if (e.key == OIS::KC_NUMPAD8) {
+    _coordVisor->translate(Vector3(0,0,-1));
+  }
+  if (e.key == OIS::KC_NUMPAD0) {
+    Vector3 position = _coordVisor->getPosition();
+    std::cout << 
+      "X: " << position.x << std::endl << 
+      "Y: " << position.y << std::endl << 
+      "Z: " << position.z << std::endl;
   }
   _animationUpdater->keyPressed(e);
  // _inputHandler->keyPressed(e);

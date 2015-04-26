@@ -68,7 +68,7 @@ class InputHandler{
 
   void mouseMoved(const OIS::MouseEvent &e);
 
-  void update(const Ogre::FrameEvent& evt, Vector3 target, bool ball, bool firstPerson);
+  void update(const Ogre::FrameEvent& evt, Vector3 target, bool ball, bool firstPerson, double cameraZoom);
 };
 
 #endif
