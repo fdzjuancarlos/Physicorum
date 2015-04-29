@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mesh>
-    <sharedgeometry vertexcount="5574">
+    <sharedgeometry vertexcount="5580">
         <vertexbuffer texture_coords="1" normals="true" positions="true" colours_diffuse="False">
             <vertex>
                 <position x="9.585060" y="8.200633" z="-48.463268"/>
@@ -27872,6 +27872,36 @@
                 <normal x="0.000000" y="1.000000" z="-0.000000"/>
                 <texcoord u="0.697803" v="0.829618"/>
             </vertex>
+            <vertex>
+                <position x="-12.499986" y="20.000000" z="5.050004"/>
+                <normal x="-0.000000" y="-1.000000" z="-0.000000"/>
+                <texcoord u="0.011425" v="0.471258"/>
+            </vertex>
+            <vertex>
+                <position x="-12.499986" y="20.000000" z="2.550004"/>
+                <normal x="-0.000000" y="-1.000000" z="-0.000000"/>
+                <texcoord u="0.010636" v="0.986852"/>
+            </vertex>
+            <vertex>
+                <position x="-9.999986" y="20.000000" z="2.550004"/>
+                <normal x="-0.000000" y="-1.000000" z="-0.000000"/>
+                <texcoord u="0.348804" v="0.987254"/>
+            </vertex>
+            <vertex>
+                <position x="-9.999986" y="20.000000" z="5.050004"/>
+                <normal x="-0.000000" y="-1.000000" z="-0.000000"/>
+                <texcoord u="0.348866" v="0.470421"/>
+            </vertex>
+            <vertex>
+                <position x="-7.499986" y="20.000000" z="2.550004"/>
+                <normal x="-0.000000" y="-1.000000" z="-0.000000"/>
+                <texcoord u="0.010636" v="0.986852"/>
+            </vertex>
+            <vertex>
+                <position x="-7.499986" y="20.000000" z="5.050004"/>
+                <normal x="-0.000000" y="-1.000000" z="-0.000000"/>
+                <texcoord u="0.011425" v="0.471258"/>
+            </vertex>
         </vertexbuffer>
     </sharedgeometry>
     <submeshes>
@@ -30234,7 +30264,7 @@
             </faces>
         </submesh>
         <submesh operationtype="triangle_list" use32bitindexes="False" material="FloorMaterial" usesharedvertices="true">
-            <faces count="2016">
+            <faces count="2020">
                 <face v1="852" v3="854" v2="853"/>
                 <face v1="852" v3="855" v2="854"/>
                 <face v1="856" v3="858" v2="857"/>
@@ -32251,6 +32281,10 @@
                 <face v1="5568" v3="5571" v2="5570"/>
                 <face v1="5572" v3="5569" v2="5573"/>
                 <face v1="5572" v3="5568" v2="5569"/>
+                <face v1="5574" v3="5576" v2="5575"/>
+                <face v1="5574" v3="5577" v2="5576"/>
+                <face v1="5577" v3="5578" v2="5576"/>
+                <face v1="5577" v3="5579" v2="5578"/>
             </faces>
         </submesh>
     </submeshes>
